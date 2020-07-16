@@ -1,6 +1,7 @@
 package com.shop.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "tbl_sale_2")
@@ -11,6 +12,7 @@ public class Sales {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	@Column
+	@Size(min = 3, message="Name should have atleast 3 characters")
 	private String name;
 	@Column
 	private int price;
@@ -26,6 +28,7 @@ public class Sales {
 	}
 
 	public Sales() {
+		
 	}
 
 	public Integer getId() {

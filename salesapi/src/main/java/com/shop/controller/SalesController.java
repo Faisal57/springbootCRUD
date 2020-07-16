@@ -1,10 +1,18 @@
 package com.shop.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import java.net.URI;
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.shop.exception.UserNotFoundException;
 import com.shop.model.Sales;
 import com.shop.service.SalesService;
 
@@ -23,16 +31,20 @@ public class SalesController {
 	@GetMapping("/sale/{id}")
 	public Optional<Sales> get(@PathVariable int id) {
 		Optional<Sales> saleObj = salesService.findById(id);
-		if(saleObj == null) {
-			throw new RuntimeException("Record not found for the Id:"+id+"!");
+		if(!saleObj.isPresent()) {
+			throw new UserNotFoundException("Record not found for the Id:"+id+"!");
 		}
 		return saleObj;
 	}
 	
 	@PostMapping("/sale")
-	public Sales save(@RequestBody Sales saleObj) {
-		salesService.save(saleObj);
-		return saleObj;
+	public ResponseEntity<Object> save(@Valid @RequestBody Sales saleObj) {
+		Sales savedSale = salesService.save(saleObj);
+		
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedSale.getId()).toUri();
+
+		return ResponseEntity.created(location).build();
+		
 	}
 	
 	@PutMapping("/sale")
